@@ -1,0 +1,41 @@
+import os
+import time
+import hashlib, binascii
+from OpenSSL import SSL
+
+previousTx="The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"		
+previousHeader=hashlib.sha256(previousTx).hexdigest() 		#hash256 of previousTx
+NM=1								#NM is number of bits to match
+NMax=100							#loop till NMax
+while (NM<NMax):								
+	start_time=time.time()			#start timer
+	Target=2**(256-NM)				#compute target value
+	difficulty=2**NM				#compute difficulty
+	maxNonce=2**32					#maxNonce set to 4 billions
+	nextTx="I, Paxshal Mehta, give Mandar Desai 10 BTC-282, on November 1,2016"	
+	i=0
+	while (i<maxNonce and i>=0):	#start mining
+		nonce=str(i)				#compute nonce
+		total=str(previousHeader)+nonce+nextTx					
+		hash_i=(int)(hashlib.sha256(total).hexdigest(),16)	#hash256 of total string
+		if (hash_i<Target):				#if hash less than target, Proof of Work solved
+			print "For number",NM,"difficulty",difficulty
+			print "Matching found",hash_i
+			print "For previousHeader =>",previousHeader
+			print "For NextTx =>",nextTx
+			print "For nonce value",i	
+			end_time=time.time()					#stop timer
+			elapsed_time=end_time-start_time		#calculate elapsed time
+			print "Elapsed time",elapsed_time
+			speed = (int)(nonce)/elapsed_time		#compute CPU hash speed
+			print "CPU hash speed",speed
+			flag=True
+			break
+		else:
+			i=i+1						#increment i
+	if (flag==False):
+		print "Failed after maxNonce tries", maxNonce	#if hash not less than target, failed and exit
+		exit()
+	
+	print "=========="
+	NM=NM+1						#increment NM
